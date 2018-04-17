@@ -1,33 +1,25 @@
 package infrastructure;
 
-import com.gargoylesoftware.htmlunit.javascript.host.Window;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import helpers.ConfigHelper;
 import helpers.TestConstantData;
 import helpers.WebElementExtension;
-import io.appium.java_client.*;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.interactions.HasInputDevices;
-import org.openqa.selenium.remote.ExecuteMethod;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.remote.Response;
-import org.openqa.selenium.remote.http.HttpClient;
-
-import java.net.URL;
-import java.nio.file.attribute.FileTime;
-import java.time.Duration;
-import java.util.*;
-
-import io.appium.java_client.remote.AppiumCommandExecutor;
-import io.appium.java_client.service.local.AppiumDriverLocalService;
-import io.appium.java_client.service.local.AppiumServiceBuilder;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -73,12 +65,62 @@ public class KAppiumDriver {
         return this.logger;
     }
 
+    public void clickButton(KMobileElement webElement) throws InterruptedException {
+
+        try {
+            FluentWait fluentWait = new FluentWait(appiumDriver).withTimeout(ConfigHelper.getAttemptCount() * ConfigHelper.getElementWaitTime(), SECONDS).pollingEvery(50, MILLISECONDS);
+            // fluentWait.until(ExpectedConditions.visibilityOf(webElement));
+            // fluentWait.until(ExpectedConditions.elementToBeClickable(webElement));
+            // scrollViewToWebElement(webElement);
+            webElement.click();
+        } catch (UnhandledAlertException f) {
+            try {
+                Alert alert = appiumDriver.switchTo().alert();
+                String alertText = alert.getText();
+                System.out.println("Alert data: " + alertText);
+                alert.accept();
+                clickButton(webElement);
+            } catch (NoAlertPresentException e) {
+                clickButton(webElement);
+            }
+        }catch (org.openqa.selenium.StaleElementReferenceException e) {
+
+            getLogger().info(e.toString());
+            getLogger().info(webElement.toString());
+            //it means it's been clicked
+            try {
+                webElement.click();
+            } catch (Exception e3) {
+                logger.info(e3.toString());
+                throw e3;
+            }
+
+        } catch (org.openqa.selenium.WebDriverException e1) {
+            if (e1.toString().contains("Other element would receive the click")) {
+                // it means some other ads blocking
+                try {
+                    logger.info(e1.toString());
+                    // scrollViewToWebElement(webElement);
+                    appiumDriver.executeScript("arguments[0].click();", webElement);
+                } catch (Exception e2) {
+                    logger.info(e2.toString());
+                    //   clickButton(webElement);//return to the entry
+                }
+            }
+        } catch (Exception e3) {
+            getLogger().info(e3.toString());
+            getLogger().info(webElement.toString());
+            waitForElementVisible(webElement);
+            clickButton(webElement);
+        }
+    }
+
     public void clickButton(WebElement webElement) throws InterruptedException {
 
         try {
             FluentWait fluentWait = new FluentWait(appiumDriver).withTimeout(ConfigHelper.getAttemptCount() * ConfigHelper.getElementWaitTime(), SECONDS).pollingEvery(50, MILLISECONDS);
-            fluentWait.until(ExpectedConditions.visibilityOf(webElement));
-            fluentWait.until(ExpectedConditions.elementToBeClickable(webElement));
+           // fluentWait.until(ExpectedConditions.visibilityOf(webElement));
+           // fluentWait.until(ExpectedConditions.elementToBeClickable(webElement));
            // scrollViewToWebElement(webElement);
             webElement.click();
         } catch (UnhandledAlertException f) {
@@ -140,6 +182,23 @@ public class KAppiumDriver {
         }
 
     }
+    public boolean waitForElementVisible(KMobileElement element) {
+        try {
+            return webElementExtension.waitForElementVisible(element);
+        } catch (org.openqa.selenium.WebDriverException e) {
+            if (e.toString().contains("No buffer space available")) {
+                logger.info(e.toString());
+                try {
+                    Thread.sleep(ConfigHelper.getImplicitWaitTime());
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                return waitForElementVisible(element);
+            }
+            throw e;
+        }
+
+    }
     public void clickButton(By locator) throws InterruptedException {
 
         try {
@@ -160,7 +219,7 @@ public class KAppiumDriver {
             try {
                 getLogger().info(e.toString());
                 WebDriverWait wait = new WebDriverWait(appiumDriver, TestConstantData.elementWaitTime);
-                wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+              //  wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
                 clickButton(locator);
             } catch (Exception e1) {
                 getLogger().info(e1.toString());
@@ -200,6 +259,8 @@ public class KAppiumDriver {
         return new KMobileElement(this.appiumDriver.findElement(by));
 
     }
+
+
 //
 //    public List<KMobileElement> findElements(String by, String using) {
 //        return super.findElements(by, using);
@@ -346,6 +407,29 @@ public class KAppiumDriver {
                 throw e;
             }
         }
+
+    }
+
+    public List<KMobileElement>  findElementsByAccessibilityId(String using) {
+
+
+        List<MobileElement> mobileElements = this.appiumDriver.findElementsByAccessibilityId(using);
+        List<KMobileElement> kMobileElements = new ArrayList<>();
+        for (MobileElement mobileElement : mobileElements) {
+            kMobileElements.add(new KMobileElement(mobileElement));
+        }
+
+        return kMobileElements;
+
+    }
+
+    public KMobileElement findElementByAccessibilityId(String using) {
+
+
+        MobileElement mobileElement = this.appiumDriver.findElementByAccessibilityId(using);
+        KMobileElement kMobileElement = new KMobileElement(mobileElement);
+
+        return kMobileElement;
 
     }
 }

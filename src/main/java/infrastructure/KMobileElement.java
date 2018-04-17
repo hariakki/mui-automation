@@ -11,9 +11,10 @@ import java.util.List;
 /**
  * Created by makri on 15/06/2017.
  */
-public class KMobileElement extends MobileElement {
+public class KMobileElement  {
     public KMobileElement(MobileElement mobileElement) {
         this.mobileElement = mobileElement;
+
     }
 
     public KMobileElement() {
@@ -27,7 +28,7 @@ public class KMobileElement extends MobileElement {
 
 
     public Point getCenter() {
-        return super.getCenter();
+        return this.mobileElement.getCenter();
     }
 
 
@@ -65,6 +66,10 @@ public class KMobileElement extends MobileElement {
 
         return kMobileElements;
 
+    }
+    public void click()
+    {
+        this.mobileElement.click();
     }
 
 //    public List<MobileElement> findElementsById(String id) {
@@ -118,6 +123,10 @@ public class KMobileElement extends MobileElement {
     }
 
     public void setValue(String value) {
-        super.setValue(value);
+        this.mobileElement.setValue(value);
+    }
+
+    public String getText() {
+        return this.mobileElement.getText();
     }
 }

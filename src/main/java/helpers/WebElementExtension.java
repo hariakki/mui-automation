@@ -1,5 +1,6 @@
 package helpers;
 
+import infrastructure.KMobileElement;
 import infrastructure.KWebElement;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
@@ -24,6 +25,7 @@ public class WebElementExtension {
     public boolean waitForPage(By locator) {
         WebDriverWait driverWait = new WebDriverWait(this.driver, TestConstantData.pageLoadWaitTime);
         try {
+            driverWait.until(ExpectedConditions.presenceOfElementLocated(locator));
             driverWait.until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException e) {
             return false;
@@ -62,7 +64,15 @@ public class WebElementExtension {
         return true;
     }
 
-
+    public boolean waitForElementVisible(KMobileElement webElement) {
+        WebDriverWait driverWait = new WebDriverWait(this.driver, TestConstantData.elementWaitTime);
+        try {
+            driverWait.until(ExpectedConditions.visibilityOf(webElement.getMobileElement()));
+        } catch (WebDriverException e) {
+            return false;
+        }
+        return true;
+    }
     public boolean waitForElementClickable(By locator) {
         WebDriverWait driverWait = new WebDriverWait(this.driver, TestConstantData.elementWaitTime);
         try {

@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -61,13 +62,16 @@ public class DriversFactory {
 
                 String url = ConfigHelper.getAppiumServerURL();
                 DesiredCapabilities capabilities = new DesiredCapabilities();
-                capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, ConfigHelper.getBrowserType());
+                //capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, ConfigHelper.getBrowserType());
                 capabilities.setCapability(MobileCapabilityType.APPIUM_VERSION, ConfigHelper.getAppiumVersion());
                 capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, ConfigHelper.getPlatformVersion());
                 capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, ConfigHelper.getDeviceName());
                 capabilities.setCapability(MobileCapabilityType.APP, appPath);
+                if(!ConfigHelper.getAutomationName().isEmpty()) {
+                    capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, ConfigHelper.getAutomationName());
+                }
                 try {
-                    appiumDriver = new IOSDriver<>(new URL(url), capabilities);
+                    appiumDriver = new IOSDriver(new URL(url), capabilities);
                     kAppiumDriver = new KAppiumDriver(appiumDriver);
                     logger.info("IOSDriver is " + driverType + " driver, pointing " + " is generated on" + url);
                 } catch (MalformedURLException e) {

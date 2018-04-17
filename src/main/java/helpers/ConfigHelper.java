@@ -148,4 +148,12 @@ public class ConfigHelper {
             return getString("app.absolute.path");
         }
     }
+
+    public static String getAutomationName() {
+        if(null== getString("automation.name")||getString("automation.name").isEmpty())
+        {
+            return "";
+        }
+        return getString("automation.name");
+    }
 }
