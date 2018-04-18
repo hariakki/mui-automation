@@ -66,7 +66,7 @@ public class ConfigHelperTest {
     @Test
     public void getBrowserType() throws Exception {
 
-        Assert.assertEquals("chrome", ConfigHelper.getBrowserType());
+        Assert.assertEquals("chrome", ConfigHelper.getDriverType());
     }
 
     @Test

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by makri on 15/06/2017.
  */
-public class KMobileElement  {
+public class KMobileElement {
     public KMobileElement(MobileElement mobileElement) {
         this.mobileElement = mobileElement;
 
@@ -32,7 +32,7 @@ public class KMobileElement  {
     }
 
 
-    public List<KMobileElement> findKElements(By by) {
+    public List<KMobileElement> findElements(By by) {
         try {
             this.mobileElement.isEnabled();
         } catch (org.openqa.selenium.StaleElementReferenceException staleElementReferenceException) {
@@ -50,7 +50,7 @@ public class KMobileElement  {
 
     }
 
-    public List<KMobileElement> findKElements(String by, String using) {
+    public List<KMobileElement> findElements(String by, String using) {
         try {
             this.mobileElement.isEnabled();
         } catch (org.openqa.selenium.StaleElementReferenceException staleElementReferenceException) {
@@ -67,8 +67,8 @@ public class KMobileElement  {
         return kMobileElements;
 
     }
-    public void click()
-    {
+
+    public void click() {
         this.mobileElement.click();
     }
 
@@ -104,7 +104,7 @@ public class KMobileElement  {
 //        return super.findElementsByXPath(using);
 //    }
 
-    public List<KMobileElement> findKElementsByAccessibilityId(String using) {
+    public List<KMobileElement> findElementsByAccessibilityId(String using) {
 
         try {
             this.mobileElement.isEnabled();

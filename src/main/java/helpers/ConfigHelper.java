@@ -71,7 +71,7 @@ public class ConfigHelper {
         return getString("project.basedir");
     }
 
-    public static String getBrowserType() {
+    public static String getDriverType() {
         return getString("browser.type");
     }
 

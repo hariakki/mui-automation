@@ -3,7 +3,6 @@ package infrastructure;
 
 import helpers.ConfigHelper;
 import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +11,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
-
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -25,7 +23,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -62,12 +59,12 @@ public class DriversFactory {
 
                 String url = ConfigHelper.getAppiumServerURL();
                 DesiredCapabilities capabilities = new DesiredCapabilities();
-                //capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, ConfigHelper.getBrowserType());
+                //capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, ConfigHelper.getDriverType());
                 capabilities.setCapability(MobileCapabilityType.APPIUM_VERSION, ConfigHelper.getAppiumVersion());
                 capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, ConfigHelper.getPlatformVersion());
                 capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, ConfigHelper.getDeviceName());
                 capabilities.setCapability(MobileCapabilityType.APP, appPath);
-                if(!ConfigHelper.getAutomationName().isEmpty()) {
+                if (!ConfigHelper.getAutomationName().isEmpty()) {
                     capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, ConfigHelper.getAutomationName());
                 }
                 try {
@@ -295,13 +292,14 @@ public class DriversFactory {
                     }
                 }
                 break;
+            default:
+                throw new IllegalArgumentException("the browser type is not defined");
         }
 
-        if(kAppiumDriver!=null)
-        {
+        if (kAppiumDriver != null) {
             return kAppiumDriver;
         }
-        return (KAppiumDriver)driver;
+        return (KAppiumDriver) driver;
     }
 
 

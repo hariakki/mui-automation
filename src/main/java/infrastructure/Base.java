@@ -9,7 +9,6 @@ import org.openqa.selenium.WebElement;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.Set;
 
 /**
  * Created by makri on 29/06/2017.
@@ -19,30 +18,30 @@ public class Base {
     protected KBaseContext scenarioContext;
     protected static Logger logger;
     protected KAppiumDriver driver;
-    protected String title = "";
+    protected String accessibilityId = "";
     protected Locale locale = null;
 
 
 
-    public <T extends KBaseContext> Base(T scenarioContext, String title) {
-        setup(scenarioContext, title, null, "en", "AU");
+    public <T extends KBaseContext> Base(T scenarioContext, String accessibilityId) {
+        setup(scenarioContext, accessibilityId, null, "en", "AU");
     }
 
-    public <T extends KBaseContext> Base(T scenarioContext, String title, String url) {
+    public <T extends KBaseContext> Base(T scenarioContext, String accessibilityId, String url) {
 
-        setup(scenarioContext, title, url, "en", "AU");
+        setup(scenarioContext, accessibilityId, url, "en", "AU");
     }
 
-    public String resetTitle(String title) {
-        this.title = title;
-        return this.title;
+    public String resetAccessibilityId(String accessibilityId) {
+        this.accessibilityId = accessibilityId;
+        return this.accessibilityId;
     }
 
 
 
 
-    //foundamental initialization - parameters include scenario context, page title, expected url, expected language and country
-    public <T extends KBaseContext> void setup(T scenarioContext, String title, String url, String language, String country) {
+    //foundamental initialization - parameters include scenario context, page accessibilityId, expected url, expected language and country
+    public <T extends KBaseContext> void setup(T scenarioContext, String accessibilityId, String url, String language, String country) {
         if (logger == null) {
             logger = scenarioContext.getLogger();
         }
@@ -51,7 +50,7 @@ public class Base {
 
         this.driver = scenarioContext.getAppiumDriver();
         this.scenarioContext = (T) scenarioContext;
-        this.title = title;
+        this.accessibilityId = accessibilityId;
 
         if (null != url) {
             //it means to change the url
@@ -149,39 +148,42 @@ public class Base {
     }
 
     public boolean isExpectedPage() {
-        if (title != null) {
-            return driver.getTitle().toLowerCase().contains(this.title.toLowerCase());
+        if (accessibilityId != null) {
+            return driver.findElementsByAccessibilityId(this.accessibilityId).size() >0;
         } else
-
         {
+            //it means no check
             return true;
         }
     }
 
-    //it seems it should not be here since it's called pageLoad
+
+
+
+
     public void waitForPageLoad() throws Exception {
-//        logger.info("logger.info(driver.getTitle());" + driver.getTitle());
-//        int retryTimes = helpers.ConfigHelper.getAttemptCount();
-//        int millionSecondsToSleepInPageLoad = helpers.ConfigHelper.getPageLoadWaitTime() / retryTimes * 1000;
-//        while (!this.isExpectedPage()) {
-//
-//            if (retryTimes > 0) {
-//                logger.info("logger.info(driver.getTitle());" + driver.getTitle());
-//                --retryTimes;
-//                driver.waitForPageLoad();
-//                Thread.sleep(millionSecondsToSleepInPageLoad);
-//
-//            } else {
-//                logger.info(driver.getTitle());
-//                throw new TimeoutException("wait for page Load attemps too many times and still cannot get the expected page, the test is terminated");
-//            }
-//
-//        }
-//        scenarioContext.getScenario().write(this.title + " is loaded");
-//        scenarioContext.getScenario().embed(scenarioContext.getAppiumDriver().getScreenshotAs(OutputType.BYTES), "image/png");
+        logger.info("waiting to find " + accessibilityId);
+        int retryTimes = helpers.ConfigHelper.getAttemptCount();
+        int millionSecondsToSleepInPageLoad = helpers.ConfigHelper.getPageLoadWaitTime() / retryTimes * 1000;
+        while (!this.isExpectedPage()) {
+
+            if (retryTimes > 0) {
+                logger.info("retry times left = " + retryTimes);
+                --retryTimes;
+                driver.waitForPageLoad();
+                Thread.sleep(millionSecondsToSleepInPageLoad);
+
+            } else {
+                logger.info(driver.getTitle());
+                throw new TimeoutException("wait for page Load attemps too many times and still cannot get the expected page, the test is terminated");
+            }
+
+        }
+        scenarioContext.getScenario().write(this.accessibilityId + " is loaded");
+        scenarioContext.getScenario().embed(scenarioContext.getAppiumDriver().getScreenshotAs(OutputType.BYTES), "image/png");
     }
 
-    //it seems it should not be here since it's called pageLoad
+
     public void waitForPageLoad(By by) throws Exception {
         logger.info("logger.info(driver.getTitle());" + by.toString());
         int retryTimes = helpers.ConfigHelper.getAttemptCount();
@@ -200,7 +202,7 @@ public class Base {
             }
 
         }
-        scenarioContext.getScenario().write(this.title + " is loaded");
+        scenarioContext.getScenario().write(this.accessibilityId + " is loaded");
         scenarioContext.getScenario().embed(scenarioContext.getAppiumDriver().getScreenshotAs(OutputType.BYTES), "image/png");
     }
 

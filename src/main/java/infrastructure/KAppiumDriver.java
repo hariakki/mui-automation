@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.interactions.HasInputDevices;
+import org.openqa.selenium.interactions.internal.Coordinates;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -199,6 +200,71 @@ public class KAppiumDriver {
         }
 
     }
+
+    public void waitUntilNotMoving(KMobileElement kMobileElement) throws InterruptedException {
+        boolean isEqual = false;
+        int waitTime = 0;
+        while(!isEqual) {
+            if(waitTime> ConfigHelper.getPageLoadWaitTime())
+            {
+                throw new IllegalArgumentException("after "+ ConfigHelper.getPageLoadWaitTime()+ " s ,the target is still moving");
+            }
+            Point oldPoint = kMobileElement.getMobileElement().getLocation();
+            Thread.sleep(1000);
+            Point newPoint = kMobileElement.getMobileElement().getLocation();
+            isEqual = newPoint.equals(oldPoint);
+            waitTime+= 1;
+        }
+    }
+    public void clickButton(String accessibilityId	 ) throws InterruptedException {
+
+        try {
+            // scrollViewToWebElement(locator);
+            KMobileElement kMobileElement = findElementByAccessibilityId(accessibilityId);
+             waitUntilNotMoving(kMobileElement);
+            int waitTime = 0;
+            while(!kMobileElement.getMobileElement().isEnabled()&& waitTime<ConfigHelper.getElementWaitTime())
+            {
+                waitTime+= 1000;
+            }
+            findElementByAccessibilityId(accessibilityId).click();
+
+        } catch (UnhandledAlertException f) {
+            try {
+                Alert alert = this.switchTo().alert();
+                String alertText = alert.getText();
+                logger.info("Alert data: " + alertText);
+                alert.accept();
+                clickButton(accessibilityId);
+            } catch (NoAlertPresentException e) {
+                clickButton(accessibilityId);
+            }
+        } catch (org.openqa.selenium.StaleElementReferenceException e) {
+            try {
+                getLogger().info(e.toString());
+                WebDriverWait wait = new WebDriverWait(appiumDriver, TestConstantData.elementWaitTime);
+                //  wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+                clickButton(accessibilityId);
+            } catch (Exception e1) {
+                getLogger().info(e1.toString());
+                clickButton(accessibilityId);//return to the entry
+            }
+        } catch (Exception e) {
+            if (e.toString().contains("Other element would receive the click")) {// it means some other ads blocking
+                try {
+                    getLogger().info(e.toString());
+                    Thread.sleep(2000);
+                    // scrollViewToWebElement(locator);
+                    appiumDriver.executeScript("arguments[0].click();", appiumDriver.findElementByAccessibilityId(accessibilityId));
+
+                } catch (Exception e1) {
+                    getLogger().info(e1.toString());
+                    clickButton(accessibilityId);//return to the entry
+                }
+            }
+        }
+
+    }
     public void clickButton(By locator) throws InterruptedException {
 
         try {
@@ -384,11 +450,17 @@ public class KAppiumDriver {
     }
 
     public String getTitle() {
+
+        if(this.appiumDriver.getTitle()==null)
+        {
+            //this is a mobile app rather than a web view
+            return "";
+        }
         return appiumDriver.getTitle();
     }
 
     public void quit() {
-        appiumDriver.quit();
+        this.appiumDriver.quit();
     }
 
     public void waitForPageLoad() {
@@ -431,5 +503,41 @@ public class KAppiumDriver {
 
         return kMobileElement;
 
+    }
+
+    public boolean waitForElementInvisible(By interstitial) {
+        try {
+            return webElementExtension.waitForElementInvisible(interstitial);
+
+        } catch (org.openqa.selenium.WebDriverException e) {
+            if (e.toString().contains("No buffer space available")) {
+                logger.info(e.toString());
+                try {
+                    Thread.sleep(ConfigHelper.getImplicitWaitTime());
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                return waitForElementInvisible(interstitial);
+            }
+            throw e;
+        }
+    }
+
+    public boolean waitForElementInvisible(WebElement webElement) {
+        try {
+            return webElementExtension.waitForElementInvisible(webElement);
+
+        } catch (org.openqa.selenium.WebDriverException e) {
+            if (e.toString().contains("No buffer space available")) {
+                logger.info(e.toString());
+                try {
+                    Thread.sleep(ConfigHelper.getImplicitWaitTime());
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                return waitForElementInvisible(webElement);
+            }
+            throw e;
+        }
     }
 }
