@@ -72,7 +72,7 @@ public class ConfigHelper {
     }
 
     public static String getDriverType() {
-        return getString("browser.type");
+        return getString("driver.type");
     }
 
     public static String getTestEnv() {

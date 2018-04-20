@@ -3,6 +3,7 @@ package infrastructure;
 
 import helpers.ConfigHelper;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +39,7 @@ public class DriversFactory {
 
     public static KAppiumDriver getDriver() {
 
-        return getDriver(ConfigHelper.getString("browser.type").toLowerCase(), ConfigHelper.getString("selenium.grid.url"));
+        return getDriver(ConfigHelper.getString("driver.type").toLowerCase(), ConfigHelper.getString("selenium.grid.url"));
 
     }
 
@@ -52,9 +53,29 @@ public class DriversFactory {
         //for specify download folder
         //String downloadFilepath = ConfigHelper.getDownloadFolder();
         switch (driverType) {
-            case "android":
+            case "android": {
+                String appPath = ConfigHelper.getAppPath();
+
+                String url = ConfigHelper.getAppiumServerURL();
+                DesiredCapabilities capabilities = new DesiredCapabilities();
+
+                capabilities.setCapability(MobileCapabilityType.APPIUM_VERSION, ConfigHelper.getAppiumVersion());
+                //capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, ConfigHelper.getPlatformVersion());
+                capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, ConfigHelper.getDeviceName());
+                capabilities.setCapability(MobileCapabilityType.APP, appPath);
+                if (!ConfigHelper.getAutomationName().isEmpty()) {
+                    capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, ConfigHelper.getAutomationName());
+                }
+                try {
+                    appiumDriver = new AndroidDriver(new URL(url), capabilities);
+                    kAppiumDriver = new KAppiumDriver(appiumDriver);
+                    logger.info("AndroidDriver is " + driverType + " driver, pointing " + " is generated on" + url);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
                 break;
-            case "ios":
+            }
+            case "ios": {
                 String appPath = ConfigHelper.getAppPath();
 
                 String url = ConfigHelper.getAppiumServerURL();
@@ -75,6 +96,7 @@ public class DriversFactory {
                     e.printStackTrace();
                 }
                 break;
+            }
             case "browserstack":
                 String USERNAME = "a user name";
                 String AUTOMATE_KEY = "a password";
