@@ -58,7 +58,39 @@ public abstract class KBaseContext extends HashMap<String, Object> {
     protected static int count = 0;
     protected Logger logger;
     protected KAppiumDriver kAppiumDriver;// kWebDriver;
+    protected  Set<String> contextNames;
 
+    public Set<String> getContextNames() {
+        return contextNames;
+    }
+    public void setContextNames(Set<String> contextNames)
+    {
+        this.contextNames=contextNames;
+    }
+    public String switchToWebView()
+    {
+        // Set<String> contextNames = driver.getContextHandles();
+        for (String contextName : this.contextNames) {
+            logger.info(contextName);
+            if (contextName.contains("WEBVIEW")){
+                this.getAppiumDriver().context(contextName);
+                return contextName;
+            }
+        }
+        return null;
+    }
+    public String switchToNative()
+    {
+        // Set<String> contextNames = driver.getContextHandles();
+        for (String contextName : this.contextNames) {
+            logger.info(contextName);
+            if (contextName.contains("NATIVE")){
+                this.getAppiumDriver().context(contextName);
+                return contextName;
+            }
+        }
+        return null;
+    }
     public KBaseContext resetTestData() {
         for (String s : this.keySet()) {
             this.remove(s);

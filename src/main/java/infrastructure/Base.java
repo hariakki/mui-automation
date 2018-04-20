@@ -9,6 +9,7 @@ import org.openqa.selenium.WebElement;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Created by makri on 29/06/2017.
@@ -65,7 +66,6 @@ public class Base {
         logger.info(this.getClass() + " finish to initialize");
 
     }
-
 
 
     public void clickButtonAndContinue(By by, Integer attemptCursor, Integer attemptCount, By[] pops) throws Exception {
@@ -149,16 +149,12 @@ public class Base {
 
     public boolean isExpectedPage() {
         if (accessibilityId != null) {
-            return driver.findElementsByAccessibilityId(this.accessibilityId).size() >0;
-        } else
-        {
+            return driver.findElementsByAccessibilityId(this.accessibilityId).size() > 0;
+        } else {
             //it means no check
             return true;
         }
     }
-
-
-
 
 
     public void waitForPageLoad() throws Exception {
@@ -188,7 +184,7 @@ public class Base {
         logger.info("logger.info(driver.getTitle());" + by.toString());
         int retryTimes = helpers.ConfigHelper.getAttemptCount();
         int millionSecondsToSleepInPageLoad = helpers.ConfigHelper.getPageLoadWaitTime() / retryTimes * 1000;
-        while (driver.findElements(by).size()==0) {
+        while (driver.findElements(by).size() == 0) {
 
             if (retryTimes > 0) {
                 logger.info("logger.info(driver.getTitle());" + by.toString());
@@ -215,7 +211,7 @@ public class Base {
         try {
             final byte[] foto = scenarioContext.getAppiumDriver().getScreenshotAs(OutputType.BYTES);
             scenarioContext.getScenario().embed(foto, "image/png");
-            if(isTakenOndisk) {
+            if (isTakenOndisk) {
                 //driver.takeScreenShot();
             }
             return "screenshot taken";//
