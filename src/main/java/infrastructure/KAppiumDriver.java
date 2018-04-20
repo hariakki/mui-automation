@@ -3,8 +3,7 @@ package infrastructure;
 import helpers.ConfigHelper;
 import helpers.TestConstantData;
 import helpers.WebElementExtension;
-import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.MobileElement;
+import io.appium.java_client.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -12,15 +11,14 @@ import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.interactions.HasInputDevices;
 import org.openqa.selenium.interactions.internal.Coordinates;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.Response;
+import org.openqa.selenium.remote.SessionId;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -28,9 +26,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * Created by Kris Ma on 21/05/2017.
  */
-public class KAppiumDriver {
+public class KAppiumDriver implements PerformsTouchActions, WebDriver {
 
     private final AppiumDriver<MobileElement> appiumDriver;
+
+    private PerformsTouchActions performsTouchActions;
+    private WebDriver webDriver;
     private final JavascriptExecutor javaScriptExecutorImplementation;
     private final HasInputDevices hasInputDevicesImplementation;
     private final WebElementExtension webElementExtension;
@@ -39,9 +40,12 @@ public class KAppiumDriver {
     public KAppiumDriver(AppiumDriver appiumDriver) {
 
         this.appiumDriver = appiumDriver;
+
+        this.webDriver = (WebDriver)appiumDriver;
         this.javaScriptExecutorImplementation = (JavascriptExecutor) appiumDriver;
         this.hasInputDevicesImplementation = (HasInputDevices) appiumDriver;
         this.webElementExtension = new WebElementExtension(appiumDriver);
+        this.performsTouchActions = (PerformsTouchActions)appiumDriver;
 
     }
 
@@ -269,7 +273,7 @@ public class KAppiumDriver {
 
         try {
             // scrollViewToWebElement(locator);
-            findElement(locator).click();
+            findKElement(locator).click();
 
         } catch (UnhandledAlertException f) {
             try {
@@ -321,7 +325,8 @@ public class KAppiumDriver {
 
     }
 
-    public KMobileElement findElement(By by) {
+
+    public KMobileElement findKElement(By by) {
         return new KMobileElement(this.appiumDriver.findElement(by));
 
     }
@@ -449,6 +454,16 @@ public class KAppiumDriver {
         return true;
     }
 
+    @Override
+    public void get(String s) {
+        this.webDriver.get(s);
+    }
+
+    @Override
+    public String getCurrentUrl() {
+        return this.webDriver.getCurrentUrl();
+    }
+
     public String getTitle() {
 
         if(this.appiumDriver.getTitle()==null)
@@ -459,8 +474,33 @@ public class KAppiumDriver {
         return appiumDriver.getTitle();
     }
 
+    @Override
+    public <T extends WebElement> T findElement(By by) {
+        return this.webDriver.findElement(by);
+    }
+
+    @Override
+    public String getPageSource() {
+        return this.webDriver.getPageSource();
+    }
+
+    @Override
+    public void close() {
+this.webDriver.close();
+    }
+
     public void quit() {
         this.appiumDriver.quit();
+    }
+
+    @Override
+    public Set<String> getWindowHandles() {
+        return this.webDriver.getWindowHandles();
+    }
+
+    @Override
+    public String getWindowHandle() {
+        return this.getWindowHandle();
     }
 
     public void waitForPageLoad() {
@@ -539,5 +579,35 @@ public class KAppiumDriver {
             }
             throw e;
         }
+    }
+
+
+
+    @Override
+    public TouchAction performTouchAction(TouchAction touchAction) {
+        return this.performsTouchActions.performTouchAction(touchAction);
+    }
+
+    @Override
+    public void performMultiTouchAction(MultiTouchAction multiAction) {
+            this.performsTouchActions.performMultiTouchAction(multiAction);
+    }
+
+    @Override
+    public Response execute(String s, Map<String, ?> map) {
+        return this.performsTouchActions.execute(s,map);
+        //return null;
+    }
+
+    @Override
+    public Response execute(String s) {
+
+        return this.performsTouchActions.execute(s);
+
+    }
+
+    public SessionId getSessionId()
+    {
+       return this.appiumDriver.getSessionId();
     }
 }

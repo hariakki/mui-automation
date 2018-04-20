@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import io.appium.java_client.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.FileDetector;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,46 @@ import java.util.List;
 /**
  * Created by makri on 15/06/2017.
  */
-public class KMobileElement {
+public class KMobileElement extends MobileElement {
     public KMobileElement(MobileElement mobileElement) {
         this.mobileElement = mobileElement;
+        this.id = mobileElement.getId();
+       // this.fileDetector = mobileElement.file
 
+    }
+
+    public void setFileDetector(FileDetector fileDetector)
+    {
+        this.mobileElement.setFileDetector(fileDetector);
+    }
+    public String getId()
+    {
+       return this.mobileElement.getId();
+    }
+
+    public void setParent(RemoteWebDriver parent)
+    {
+        this.mobileElement.setParent(parent);
+    }
+
+    protected String id;
+    protected RemoteWebDriver parent;
+    protected FileDetector fileDetector;
+
+    @Override
+    public boolean isDisplayed()
+    {
+        return this.mobileElement.isDisplayed();
+    }
+    @Override
+    public boolean isEnabled()
+    {
+        return this.mobileElement.isEnabled();
+    }
+    @Override
+    public boolean isSelected()
+    {
+        return this.mobileElement.isSelected();
     }
 
     public KMobileElement() {
@@ -32,7 +69,7 @@ public class KMobileElement {
     }
 
 
-    public List<KMobileElement> findElements(By by) {
+    public List<KMobileElement> findKElements(By by) {
         try {
             this.mobileElement.isEnabled();
         } catch (org.openqa.selenium.StaleElementReferenceException staleElementReferenceException) {
@@ -50,7 +87,7 @@ public class KMobileElement {
 
     }
 
-    public List<KMobileElement> findElements(String by, String using) {
+    public List<KMobileElement> findKElements(String by, String using) {
         try {
             this.mobileElement.isEnabled();
         } catch (org.openqa.selenium.StaleElementReferenceException staleElementReferenceException) {
@@ -104,7 +141,7 @@ public class KMobileElement {
 //        return super.findElementsByXPath(using);
 //    }
 
-    public List<KMobileElement> findElementsByAccessibilityId(String using) {
+    public List<KMobileElement> findKElementsByAccessibilityId(String using) {
 
         try {
             this.mobileElement.isEnabled();
